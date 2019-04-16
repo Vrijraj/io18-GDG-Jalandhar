@@ -1,0 +1,130 @@
+        //Hide the Content
+        document.getElementById('UserDetails').style.display="none";
+        document.getElementById('confirmation').style.display="none";
+        document.getElementById('logout').style.display="none";
+        document.getElementById('updateData').style.display="none";
+
+        // Initialize Firebase
+        var config = {
+            apiKey: "AIzaSyBRibNRUINQaIrz2eyk0H2NyDNQDE0ozcM",
+            authDomain: "io2018web.firebaseapp.com",
+            databaseURL: "https://io2018web.firebaseio.com",
+            projectId: "io2018web",
+            storageBucket: "io2018web.appspot.com",
+            messagingSenderId: "215081620072"
+        };
+        firebase.initializeApp(config);
+
+        //Call Events
+        document.getElementById('login').addEventListener('click',loginUser);
+        document.getElementById('submit').addEventListener('click',addData);
+        document.getElementById('logout').addEventListener('click',logoutUser);
+
+
+        //Google Sign In Provider
+        var provider = new firebase.auth.GoogleAuthProvider();
+        
+        //Call Functions
+        function loginUser(){
+            firebase.auth().signInWithPopup(provider).then(function(result) {
+                  var token = result.credential.accessToken;
+                  var user = result.user;
+                  console.log(user);     
+            }).catch(function(error) {
+              var errorCode = error.code;
+              var errorMessage = error.message;
+              var email = error.email;
+              var credential = error.credential;
+            });
+        }
+
+        function logoutUser(){
+            firebase.auth().signOut().then(function() {
+                // Sign-out successful.
+                document.getElementById('logout').style.display="none";
+                document.getElementById('login').style.display="block";
+                document.getElementById('UserDetails').style.display="none";
+                document.getElementById('updateData').style.display="none";
+            }).catch(function(error) {
+            // An error happened.
+            });
+        }
+
+
+        var email;
+        var uid;
+        console.log("User Email "+email);
+        
+        function addData(){
+            if(email){
+                var name=document.getElementById('name').value;
+                var mobile=document.getElementById('mobile').value;
+                var organization=document.getElementById('organization').value;
+                var designation=document.getElementById('designation').value;
+                var why=document.getElementById('why').value;
+                
+                var data={
+                    name:name,
+                    email:email,
+                    mobile:mobile,
+                    org:organization,
+                    designation:designation,
+                    why:why,
+                    timestamp:Date(),
+                    uid:uid
+                }
+                
+                firebase.database().ref('IOAttendees/'+uid).set(data).then(()=>{
+                    alert("User SuccessFully Registered");
+                    document.getElementById('UserInput').innerHTML="Thank you Filling this Form";
+                    document.getElementById('confirmation').style.display="block";
+
+
+                })
+                console.log(email);
+            }
+            else{
+                alert("you need to Login with Google");
+                //document.getElementById('userDetailSection').innerHTML="Thank you Filling this Form";
+            }
+          
+        }
+
+
+         firebase.auth().onAuthStateChanged(function(user) {
+            if (user) {
+                var displayName = user.displayName;
+                email = user.email;
+                var emailVerified = user.emailVerified;
+                var photoURL = user.photoURL;
+                var isAnonymous = user.isAnonymous;
+                uid = user.uid;
+                var providerData = user.providerData;
+                
+                console.log(email);
+
+                document.getElementById('SignInMsg').innerHTML="<b style='color:blue'>"+displayName+"</b> Successfully Logged In with : <b style='color:blue'>"+email+"</b>";
+
+                document.getElementById('logout').style.display="block";
+                document.getElementById('login').style.display="none";
+                
+                
+                
+                firebase.database().ref('IOAttendees/'+uid).once('value',(snap)=>{
+                    if(snap.val()){
+                        document.getElementById('UserDetails').style.display="none";
+                        document.getElementById('updateData').style.display="block";
+                    }
+                    else{
+                        document.getElementById('UserDetails').style.display="block";
+                    }
+                })
+                // ...
+            } else {
+                // User is signed out.
+                // ...
+                document.getElementById('UserDetails').style.display="none";
+                console.log("err");
+                document.getElementById('SignInMsg').innerHTML="You need to sign in with a Google account or a Gmail address to register for this event.";
+            }
+        });

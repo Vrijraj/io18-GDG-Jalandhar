@@ -1,0 +1,19 @@
+/* Your custom styles */
+.stylish-color-dark-text{
+    color: #3E4551;
+}
+
+.google-font{
+    font-family: Product Sans;
+}
+
+.navbar.navbar-light .breadcrumb .nav-item .nav-link:hover, .navbar.navbar-light .navbar-nav .nav-item .nav-link:hover {background-color: #eeeeee ; 
+}
+@media (max-width: 991px){
+    .navbar > .container-fluid{
+        display: initial !important;
+    }
+}
+
+
+
